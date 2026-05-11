@@ -1,0 +1,14 @@
+# Example local configuration. Keep the real qti_unified.toml out of git.
+
+[paths]
+data_root = "C:\\QTI_Unified\\data"
+xps_path = "C:\\SynQTI-IR\\data\\xps\\xps_sub_min_pp.mat"
+model_root = "C:\\QTI_ML\\BENCHMARK_ABSTRACT"
+cov_fit_root = "C:\\SynQTI-IR\\data\\Fit_Results\\dtd_covariance_snr30_batch_sub_min_pp_patho"
+patient_root = "D:\\external_patient_qti"
+
+[generation]
+snr = 30
+n_realizations = 100
+n_tensors = 1500
+seed = 42

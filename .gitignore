@@ -1,0 +1,34 @@
+# Local/generated scientific data. These can be very large and must stay external.
+data/
+runs/
+figures/
+patient_data/
+external/
+*.nii
+*.nii.gz
+*.mat
+*.pt
+*.pth
+*.ckpt
+*_zscore.csv
+
+# Fit outputs and covariance batches.
+Fit_Results/
+fit_results/
+covariance_fits/
+*_covariance_*/
+
+# Python/build noise.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+_tmp_tests/
+
+# Local config with private machine paths.
+.env
+qti_unified.toml

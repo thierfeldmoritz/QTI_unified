@@ -1,0 +1,135 @@
+# QTI Unified Patho Workflow
+
+`qti-unified` is a small, standalone repo for the current patho-only QTI
+synthetic workflow. It replaces the old split between DTD generation notebooks
+and plotting notebooks with one documented package and one CLI.
+
+The repo does not store large data. Generated signals, patient data,
+covariance-fit outputs, and model checkpoints are all external paths and are
+ignored by git.
+
+## What This Repo Does
+
+- Generates patho DTD cases and notebook-compatible output folders.
+- Computes GT scalar metrics once during generation and stores them in
+  `*_GT_params.json`.
+- Writes exact DTD signals, cumulant-expansion signals, and optional noisy SNR
+  realizations.
+- Runs external benchmark MLP checkpoints on generated noisy signals.
+- Plots GT, MLP mean/std, and optional covariance-fit overlays.
+- Optionally compares generated exact signals with an external patient target.
+
+## Install
+
+From `C:\QTI_Unified`:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e .[dev]
+```
+
+If your environment already has the scientific stack and Torch installed, this
+editable install is enough to expose the `qti-unified` command.
+
+## External Paths
+
+Copy the examples and edit them for your machine:
+
+```powershell
+Copy-Item .env.example .env
+Copy-Item qti_unified.toml.example qti_unified.toml
+```
+
+The CLI reads environment variables directly:
+
+- `QTI_DATA_ROOT`: local generated-data root, for example `C:\QTI_Unified\data`.
+- `QTI_XPS_PATH`: optional external XPS `.mat` protocol.
+- `QTI_MODEL_ROOT`: external benchmark MLP checkpoint directory.
+- `QTI_COV_FIT_ROOT`: optional external covariance-fit result directory.
+- `QTI_PATIENT_ROOT`: optional external patient root for local bookkeeping.
+
+Patient scans must be supplied explicitly to `patient-compare`; no patient data
+is bundled here.
+
+## Quickstart
+
+Generate a tiny smoke-test subset using the built-in protocol:
+
+```powershell
+qti-unified patho-generate --scenario needle_sphere_2 --n-tensors 16 --n-realizations 2
+qti-unified validate-gt
+```
+
+Run a real generation with your acquisition protocol:
+
+```powershell
+qti-unified patho-generate --xps-path $env:QTI_XPS_PATH --n-tensors 1500 --snr 30 --n-realizations 100
+```
+
+Run MLP comparison and plots:
+
+```powershell
+qti-unified patho-compare --model-root $env:QTI_MODEL_ROOT --cov-fit-root $env:QTI_COV_FIT_ROOT
+```
+
+Run everything in one command:
+
+```powershell
+qti-unified patho-run --xps-path $env:QTI_XPS_PATH --model-root $env:QTI_MODEL_ROOT --cov-fit-root $env:QTI_COV_FIT_ROOT
+```
+
+Compare to an external patient signal:
+
+```powershell
+qti-unified patient-compare --patient-signal D:\patients\P01\signal.nii.gz --target "Brain mean"
+```
+
+## Output Layout
+
+Generated files keep the old notebook-compatible names, but only for patho
+cases:
+
+```text
+<QTI_DATA_ROOT>/
+  DTDs_cov_suite_2_patho/
+  Results_2_MLP_patho/
+  Results_SNR_fit_2_MLP_patho/
+  runs/QTI_MLP_synthetic_compare_patho/
+```
+
+Every generated case has a `*_GT_params.json` file with:
+
+- `MD_um2_per_ms`
+- `MD`
+- `FA`
+- `uFA`
+- `C_MD`
+- `C_c`
+
+Prediction and plotting commands read this stored GT JSON. They do not
+recompute GT. Use `qti-unified validate-gt` when you intentionally want to
+recompute and compare.
+
+## Documentation
+
+- [Configuration](docs/configuration.md) explains path resolution and examples.
+- [Workflow](docs/workflow.md) explains generation, GT, SNR, MLP, plots, and
+  patient comparison.
+- [Modules](docs/modules.md) explains each code module, main functions, inputs,
+  outputs, and side effects.
+- [In-vivo patho comparison PNGs](docs/invivo_compare_patho.md) shows the
+  included derived winner plots and how to recreate them from external patient
+  data.
+
+## Troubleshooting
+
+- `No benchmark checkpoints found`: set `QTI_MODEL_ROOT` or pass
+  `--model-root` to the folder containing checkpoint files and matching
+  `*_zscore.csv` files.
+- `Stored GT JSON is missing`: run `patho-generate` before `patho-compare`.
+- Missing covariance fits are allowed. Plots are still produced without the
+  orange covariance-fit series.
+- Use `--snr none` for generation tests that should skip noisy signal files.
+- The built-in acquisition protocol exists only for smoke tests. For real
+  comparisons, pass the XPS protocol used by the MLP.
