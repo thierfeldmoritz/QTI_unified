@@ -310,11 +310,11 @@ def plot_scenario_comparisons(df: pd.DataFrame, out_dir: str | Path, invar_keys:
         for ax in axes[len(plot_specs) :]:
             ax.axis("off")
         handles = [
-            Line2D([0], [0], color="k", linestyle="--", linewidth=1.5, marker="*", markersize=7, label="Ground truth"),
-            Line2D([0], [0], color="tab:blue", linestyle="-", linewidth=1.4, marker="o", markersize=5, label="MLP mean +/- std"),
-            Line2D([0], [0], color="tab:orange", linestyle="-", linewidth=1.4, marker="^", markersize=5, label="Cov fit mean +/- std"),
+            Line2D([0], [0], color="k", linestyle="--", linewidth=1.2, marker="*", markersize=4, label="Ground truth"),
+            Line2D([0], [0], color="tab:blue", linestyle="-", linewidth=1.1, marker="o", markersize=3, label="MLP mean +/- std"),
+            Line2D([0], [0], color="tab:orange", linestyle="-", linewidth=1.1, marker="^", markersize=3, label="Cov fit mean +/- std"),
         ]
-        axes[0].legend(handles=handles, loc="upper left", frameon=False, fontsize=9)
+        axes[0].legend(handles=handles, loc="upper right", frameon=False, fontsize=9, handlelength=1.4, handletextpad=0.5)
         fig.suptitle(f"{str(scenario).replace('_', ' ').title()} | patho", fontsize=14, y=1.02)
         fig.tight_layout(rect=[0, 0, 1, 0.97])
         path = out / scenario_plot_name(str(scenario))

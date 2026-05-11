@@ -28,6 +28,7 @@ __pycache__/
 build/
 dist/
 _tmp_tests/
+.unittest_tmp/
 
 # Local config with private machine paths.
 .env

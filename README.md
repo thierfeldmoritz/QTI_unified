@@ -4,6 +4,11 @@
 synthetic workflow. It replaces the old split between DTD generation notebooks
 and plotting notebooks with one documented package and one CLI.
 
+The numerical/sampling code is vendored from the original projects:
+`utils.dtd_math`, `utils.dtd_utils`, and `qti_phantom.py` come from
+`C:\SynQTI-IR`, and the prediction adapter uses the original `QTI_MLP.py`
+implementation from `C:\QTI_ML`.
+
 The repo does not store large data. Generated signals, patient data,
 covariance-fit outputs, and model checkpoints are all external paths and are
 ignored by git.

@@ -31,9 +31,9 @@ change it here first and add a test.
 
 ## `qti_unified.qti_math`
 
-Minimal vendored QTI tensor, signal, and GT math.
+Compatibility wrapper around the original SynQTI-IR `utils.dtd_math` module.
 
-- Tensor conversion helpers use Voigt notation with SI units.
+- Tensor conversion helpers delegate to the old Voigt/QTI utilities.
 - `params_to_dtens` converts DTD parameter dictionaries to 3x3 tensors.
 - `qti_params_from_dtd` computes first and second cumulant tensors.
 - `gt_scalars_from_params` computes the stored GT scalar payload.

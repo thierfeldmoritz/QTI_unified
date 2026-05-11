@@ -112,10 +112,10 @@ def discover_prediction_cases(
         gt_json = results_root / scenario / case / f"{scenario}__{case}__GT_params.json"
         if not gt_json.exists():
             raise FileNotFoundError(f"Stored GT JSON is missing for {scenario}/{case}: {gt_json}")
-        cov_dps_path = None
-        if cov_root is not None:
-            cov_dps_path = cov_root / scenario / case / snr_folder / "dtd_covariance_dps.mat"
         for signal_path in sorted(noisy_dir.glob("*.nii*")):
+            cov_dps_path = None
+            if cov_root is not None:
+                cov_dps_path = cov_root / scenario / case / snr_folder / signal_path.stem / "wlls" / "dtd_covariance_dps.mat"
             rows.append(
                 {
                     "scenario": scenario,

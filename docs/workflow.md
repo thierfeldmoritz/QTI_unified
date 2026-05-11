@@ -19,8 +19,9 @@ qti-unified patho-generate --scenario crossing_needles_2 --n-tensors 1500
 
 ## 2. Store GT Once
 
-During generation, GT scalars are computed with the local QTI math route in
-`qti_unified.qti_math`. The output is written to:
+During generation, GT scalars are computed through `qti_unified.qti_math`,
+which delegates the formulas to the vendored SynQTI-IR `utils.dtd_math`
+functions. The output is written to:
 
 ```text
 <QTI_DATA_ROOT>\Results_2_MLP_patho\<scenario>\<case>\*_GT_params.json

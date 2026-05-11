@@ -8,10 +8,12 @@ version = "0.2.0"
 description = "Standalone patho QTI synthetic generation, GT, inference, and plotting workflow"
 requires-python = ">=3.10"
 dependencies = [
+  "dipy>=1.11",
   "matplotlib>=3.7",
   "nibabel>=5.1",
   "numpy>=1.24",
   "pandas>=2.0",
+  "plotly>=5.0",
   "scipy>=1.10",
   "torch>=2.0",
 ]
@@ -24,3 +26,6 @@ qti-unified = "qti_unified.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+utils = ["*.txt"]
