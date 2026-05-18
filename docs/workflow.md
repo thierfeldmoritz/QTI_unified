@@ -17,6 +17,21 @@ orientation vector. Scenarios live in `qti_unified.patho`.
 qti-unified patho-generate --scenario crossing_needles_2 --n-tensors 1500
 ```
 
+To run the workflow on only the checked-in per-scenario winner DTDs, add
+`--winners-only`. The command still writes the same output layout, so
+`patho-compare`, `validate-gt`, and patient comparison can consume the outputs
+normally:
+
+```powershell
+qti-unified patho-generate --winners-only --xps-path $env:QTI_XPS_PATH
+```
+
+With `--winners-only`, the DTD parameters come from
+`reference_data/DTDs_cov_suite_2_patho_winners` instead of being sampled from
+the scenario generator. There is one checked-in winner JSON per scenario.
+`--scenario` still selects scenarios, but `--n-tensors` and `--seed` do not
+change the checked-in winner JSONs.
+
 ## 2. Store GT Once
 
 During generation, GT scalars are computed through `qti_unified.qti_math`,
@@ -108,4 +123,15 @@ qti-unified patho-run `
   --cov-fit-root C:\SynQTI-IR\data\Fit_Results\dtd_covariance_snr30_batch_sub_min_pp_patho `
   --snr 30 `
   --n-realizations 100
+```
+
+Use `--winners-only` with `patho-run` when the full generate-plus-compare
+pipeline should use only the checked-in winner DTDs.
+
+```powershell
+qti-unified patho-run `
+  --winners-only `
+  --xps-path C:\SynQTI-IR\data\xps\xps_sub_min_pp.mat `
+  --model-root C:\QTI_ML\BENCHMARK_ABSTRACT `
+  --cov-fit-root C:\SynQTI-IR\data\Fit_Results\dtd_covariance_snr30_batch_sub_min_pp_patho
 ```

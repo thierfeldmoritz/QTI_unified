@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 
 from .config import GeneratedPathoCase, PathoRunConfig, resolve_data_root, resolve_optional_path
-from .patho import generate_patho_suite
+from .patho import generate_patho_suite, load_winner_patho_suite
 from .qti_math import gt_scalars_from_params
 from .signals import write_case_outputs
 
@@ -35,7 +35,7 @@ def _require_pandas():
         raise ModuleNotFoundError("pandas is required for tables. Install the package with `python -m pip install -e .[dev]`.") from exc
 
 
-def generate_patho_data(config: PathoRunConfig, scenarios: list[str] | None = None) -> list[GeneratedPathoCase]:
+def generate_patho_data(config: PathoRunConfig, scenarios: list[str] | None = None, winners_only: bool = False) -> list[GeneratedPathoCase]:
     """Generate patho DTDs, stored GT, exact/cumexp signals, and noisy signals.
 
     Parameters
@@ -46,6 +46,9 @@ def generate_patho_data(config: PathoRunConfig, scenarios: list[str] | None = No
     scenarios
         Optional subset of patho scenario names. ``None`` generates all known
         patho scenarios.
+    winners_only
+        When true, load the checked-in per-scenario winner DTD JSON files
+        instead of generating every case in each scenario.
 
     Returns
     -------
@@ -58,7 +61,7 @@ def generate_patho_data(config: PathoRunConfig, scenarios: list[str] | None = No
     """
 
     data_root = resolve_data_root(config.data_root)
-    cases = generate_patho_suite(scenarios=scenarios, n_tensors=config.n_tensors, seed=config.seed)
+    cases = load_winner_patho_suite(scenarios=scenarios) if winners_only else generate_patho_suite(scenarios=scenarios, n_tensors=config.n_tensors, seed=config.seed)
     generated: list[GeneratedPathoCase] = []
     for case in cases:
         generated.append(

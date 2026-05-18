@@ -37,8 +37,9 @@ def build_parser() -> argparse.ArgumentParser:
     gen.add_argument("--data-root", type=Path, default=None, help="Generated-data root. Defaults to QTI_DATA_ROOT or <repo>/data.")
     gen.add_argument("--xps-path", type=Path, default=None, help="External XPS .mat protocol. Defaults to QTI_XPS_PATH or built-in smoke-test protocol.")
     gen.add_argument("--scenario", action="append", choices=available_scenarios(), help="Scenario to generate. Repeat to select multiple; omit for all.")
-    gen.add_argument("--n-tensors", type=int, default=1500, help="Tensor count per generated DTD case.")
-    gen.add_argument("--seed", type=int, default=42, help="Base seed; each case receives a deterministic derived seed.")
+    gen.add_argument("--winners-only", action="store_true", help="Use the checked-in per-scenario winner DTD JSONs instead of generating every case.")
+    gen.add_argument("--n-tensors", type=int, default=1500, help="Tensor count per generated DTD case; ignored with --winners-only.")
+    gen.add_argument("--seed", type=int, default=42, help="Base seed; ignored with --winners-only.")
     gen.add_argument("--snr", type=_float_or_none, default=30.0, help="SNR value, or 'none' to skip noisy signals.")
     gen.add_argument("--n-realizations", type=int, default=100, help="Noisy signal realizations per case.")
     gen.add_argument("--s0", type=float, default=1.0, help="Baseline signal amplitude.")
@@ -57,8 +58,9 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--model-root", type=Path, default=None, help="External benchmark checkpoint root.")
     run.add_argument("--cov-fit-root", type=Path, default=None, help="Optional external covariance-fit root.")
     run.add_argument("--scenario", action="append", choices=available_scenarios(), help="Scenario to generate. Repeat to select multiple; omit for all.")
-    run.add_argument("--n-tensors", type=int, default=1500, help="Tensor count per generated DTD case.")
-    run.add_argument("--seed", type=int, default=42, help="Base seed.")
+    run.add_argument("--winners-only", action="store_true", help="Use the checked-in per-scenario winner DTD JSONs instead of generating every case.")
+    run.add_argument("--n-tensors", type=int, default=1500, help="Tensor count per generated DTD case; ignored with --winners-only.")
+    run.add_argument("--seed", type=int, default=42, help="Base seed; ignored with --winners-only.")
     run.add_argument("--snr", type=_float_or_none, default=30.0, help="SNR value, or 'none' to skip noisy signals.")
     run.add_argument("--n-realizations", type=int, default=100, help="Noisy signal realizations per case.")
     run.add_argument("--s0", type=float, default=1.0, help="Baseline signal amplitude.")
@@ -106,7 +108,7 @@ def main(argv: list[str] | None = None) -> int:
             seed=args.seed,
             s0=args.s0,
         )
-        generated = generate_patho_data(config, scenarios=args.scenario)
+        generated = generate_patho_data(config, scenarios=args.scenario, winners_only=args.winners_only)
         manifest = write_generation_manifest(generated, config.data_root)
         print(f"Generated {len(generated)} patho cases under {config.data_root}")
         print(f"Manifest: {manifest}")
@@ -134,7 +136,7 @@ def main(argv: list[str] | None = None) -> int:
             seed=args.seed,
             s0=args.s0,
         )
-        generated = generate_patho_data(config, scenarios=args.scenario)
+        generated = generate_patho_data(config, scenarios=args.scenario, winners_only=args.winners_only)
         manifest = write_generation_manifest(generated, config.data_root)
         print(f"Generated {len(generated)} patho cases under {config.data_root}")
         print(f"Manifest: {manifest}")

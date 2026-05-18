@@ -25,9 +25,13 @@ Patho scenario definitions and DTD parameter generation.
 - `available_scenarios`: lists supported patho scenario names.
 - `generate_patho_case`: creates one `PathoCase`.
 - `generate_patho_suite`: creates all cases for selected scenarios.
+- `winner_case_names`: maps scenarios to the checked-in winner cases.
+- `load_winner_patho_suite`: loads the checked-in winner DTD JSONs as
+  `PathoCase` objects for the normal pipeline.
 
-The module owns case naming. If a filename should remain notebook-compatible,
-change it here first and add a test.
+The module owns case naming and winner-DTD discovery. If a filename should
+remain notebook-compatible, change it here first and add a test. The
+winner-only path intentionally reads `reference_data` instead of resampling DTDs.
 
 ## `qti_unified.qti_math`
 
@@ -115,6 +119,7 @@ PNGs are documented in [In-Vivo Patho Comparison PNGs](invivo_compare_patho.md).
 End-to-end orchestration used by the CLI.
 
 - `generate_patho_data`: generates patho cases and writes all synthetic outputs.
+  It can also load the checked-in winner DTDs when `winners_only=True`.
 - `discover_prediction_cases`: discovers generated noisy signal files and stored
   GT JSONs.
 - `compare_patho_predictions`: runs external MLP checkpoints and writes tables
@@ -138,6 +143,11 @@ Subcommands:
 - `patho-run`
 - `patient-compare`
 - `validate-gt`
+
+`patho-generate` and `patho-run` accept `--winners-only` to run the normal
+workflow on the checked-in winner DTDs. `patho-compare`, `patient-compare`, and
+`validate-gt` consume generated output folders and do not need a separate winner
+flag.
 
 Keep CLI behavior thin. Heavy behavior belongs in `pipeline.py` so tests can
 call it directly.

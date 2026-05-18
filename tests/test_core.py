@@ -10,7 +10,7 @@ import numpy as np
 
 from qti_unified import qti_math
 from qti_unified.config import PathoRunConfig, resolve_data_root
-from qti_unified.patho import available_scenarios, generate_patho_case
+from qti_unified.patho import available_scenarios, generate_patho_case, winner_case_names
 from qti_unified.pipeline import discover_prediction_cases, generate_patho_data, validate_gt
 from qti_unified.signals import patho_output_paths
 
@@ -88,6 +88,17 @@ class CoreWorkflowTests(unittest.TestCase):
             self.assertFalse(validation.empty)
             self.assertTrue(validation["ok"].all())
 
+    def test_winners_only_generation_uses_checked_in_winner_case(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = PathoRunConfig(data_root=Path(tmp), n_tensors=8, n_realizations=0, snr=None, seed=3)
+            generated = generate_patho_data(config, scenarios=["crossing_needles_2"], winners_only=True)
+
+            expected_case = winner_case_names(["crossing_needles_2"])["crossing_needles_2"]
+            self.assertEqual(len(generated), 1)
+            self.assertEqual(generated[0].case.case, expected_case)
+            self.assertEqual(generated[0].case.metadata["source"], "reference_winner")
+            self.assertTrue(Path(generated[0].paths["gt_json"]).exists())
+
 
 class RepositoryPolicyTests(unittest.TestCase):
     def test_gitignore_keeps_large_external_data_out(self):
@@ -95,6 +106,18 @@ class RepositoryPolicyTests(unittest.TestCase):
         text = (root / ".gitignore").read_text(encoding="utf-8")
         for pattern in ["data/", "runs/", "patient_data/", "*.nii", "*.nii.gz", "*.pt", "*.pth", "*_zscore.csv"]:
             self.assertIn(pattern, text)
+
+    def test_reference_winner_dtds_cover_one_json_per_scenario(self):
+        root = Path(__file__).resolve().parents[1]
+        winner_root = root / "reference_data" / "DTDs_cov_suite_2_patho_winners"
+        json_files = sorted(winner_root.glob("*/*.json"))
+
+        self.assertEqual({path.parent.name for path in json_files}, set(available_scenarios()))
+        self.assertEqual(len(json_files), len(available_scenarios()))
+        for path in json_files:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            self.assertIsInstance(payload, list, path)
+            self.assertGreater(len(payload), 0, path)
 
     def test_public_functions_and_classes_have_docstrings(self):
         module_names = [

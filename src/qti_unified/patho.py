@@ -9,8 +9,10 @@ scenario/case names used by the old workflow.
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 from collections.abc import Callable
+from pathlib import Path
 
 import numpy as np
 
@@ -296,6 +298,28 @@ def available_scenarios() -> list[str]:
     return sorted(CASE_NAMES)
 
 
+def reference_winner_root() -> Path:
+    """Return the checked-in patho winner DTD reference-data directory."""
+
+    return Path(__file__).resolve().parents[2] / "reference_data" / "DTDs_cov_suite_2_patho_winners"
+
+
+def winner_case_names(scenarios: list[str] | None = None) -> dict[str, str]:
+    """Map scenarios to the single checked-in winner case available for each."""
+
+    selected = available_scenarios() if scenarios is None else list(scenarios)
+    root = reference_winner_root()
+    winners: dict[str, str] = {}
+    for scenario in selected:
+        if scenario not in CASE_NAMES:
+            raise KeyError(f"Unknown scenario {scenario!r}.")
+        files = sorted((root / scenario).glob("*.json"))
+        if len(files) != 1:
+            raise FileNotFoundError(f"Expected exactly one winner JSON for {scenario!r} under {root}. Found {len(files)}.")
+        winners[scenario] = files[0].stem
+    return winners
+
+
 def generate_patho_case(scenario: str, case: str, n_tensors: int = 1500, seed: int = 42) -> PathoCase:
     """Generate one patho DTD case with the vendored old sampling utilities."""
 
@@ -318,3 +342,32 @@ def generate_patho_suite(scenarios: list[str] | None = None, n_tensors: int = 15
         for case in CASE_NAMES[scenario]:
             cases.append(generate_patho_case(scenario, case, n_tensors=n_tensors, seed=seed))
     return cases
+
+
+def load_winner_patho_case(scenario: str) -> PathoCase:
+    """Load one checked-in winner DTD case for a patho scenario."""
+
+    winners = winner_case_names([scenario])
+    case = winners[scenario]
+    path = reference_winner_root() / scenario / f"{case}.json"
+    params = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(params, list) or not params:
+        raise ValueError(f"Winner DTD JSON must contain a non-empty parameter list: {path}")
+    return PathoCase(
+        scenario=scenario,
+        case=case,
+        params=params,
+        metadata={
+            "scenario": scenario,
+            "case": case,
+            "n_tensors": len(params),
+            "source": "reference_winner",
+            "reference_json": str(path),
+        },
+    )
+
+
+def load_winner_patho_suite(scenarios: list[str] | None = None) -> list[PathoCase]:
+    """Load the checked-in winner DTD cases for all requested scenarios."""
+
+    return [load_winner_patho_case(scenario) for scenario in winner_case_names(scenarios)]

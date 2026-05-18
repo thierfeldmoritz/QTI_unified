@@ -16,8 +16,10 @@ __all__ = [
     "compare_patho_predictions",
     "generate_patho_data",
     "generate_patho_suite",
+    "load_winner_patho_suite",
     "resolve_data_root",
     "validate_gt",
+    "winner_case_names",
 ]
 
 
@@ -39,7 +41,7 @@ def __getattr__(name: str) -> object:
         from . import config
 
         return getattr(config, name)
-    if name in {"available_scenarios", "generate_patho_suite"}:
+    if name in {"available_scenarios", "generate_patho_suite", "load_winner_patho_suite", "winner_case_names"}:
         from . import patho
 
         return getattr(patho, name)

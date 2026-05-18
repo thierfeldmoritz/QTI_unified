@@ -15,6 +15,31 @@ docs/assets/invivo_compare_patho
 These PNGs are derived figures only. The patient NIfTI files, masks, XPS files,
 and generated synthetic signal folders remain external.
 
+The matching winning DTD JSON files are included as small reference data in:
+
+```text
+reference_data/DTDs_cov_suite_2_patho_winners
+```
+
+They are copied from:
+
+```text
+C:\SynQTI-IR\data\DTDs_cov_suite_2_patho_winners
+```
+
+Only the per-scenario winner JSON files are checked in. Generated NIfTI signals,
+covariance fits, patient data, masks, and XPS files still stay outside the repo.
+The winner JSONs can also be used directly by the standard synthetic workflow:
+
+```powershell
+qti-unified patho-generate --winners-only --xps-path $env:QTI_XPS_PATH
+qti-unified patho-run --winners-only --xps-path $env:QTI_XPS_PATH --model-root $env:QTI_MODEL_ROOT
+```
+
+`patho-generate --winners-only` loads the checked-in DTD JSONs, computes fresh
+GT JSONs, and synthesizes new signals under `QTI_DATA_ROOT`. It does not copy
+patient data or generated NIfTI files into `reference_data`.
+
 ## Recreate The Plots
 
 The plot-generation logic from
